@@ -1,0 +1,55 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0+
+#
+# YuzukiNeko /sbin/init (PID 1)
+#
+# The kernel mounts the read-only SquashFS root and hands control here. We
+# build an overlayfs whose lower is that SquashFS root and whose upper lives
+# on the JFFS2 "overlay" MTD partition, pivot_root() onto it, and then start
+# the real (busybox) init. From then on the whole root is writable and the
+# changes persist on the JFFS2 upper.
+#
+# Requires busybox applets: mount, pivot_root, flash_erase (mtd-utils).
+set -e
+
+msg() { echo "init: $*"; }
+
+# --- basic pseudo-filesystems -------------------------------------------
+mount -t proc proc /proc 2>/dev/null || true
+mount -t sysfs sysfs /sys 2>/dev/null || true
+mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+
+mtd="$(sed -n 's/^mtd\([0-9]\+\):.*"overlay".*/\1/p' /proc/mtd | head -n1)"
+if [ -z "$mtd" ]; then
+	msg "no 'overlay' MTD partition; staying on read-only root"
+	exec /bin/busybox init
+fi
+
+# --- JFFS2 upper (mount by partition name) ------------------------------
+mkdir -p /mnt/overlay
+if ! mount -t jffs2 mtd:overlay /mnt/overlay 2>/dev/null; then
+	msg "initializing JFFS2 on /dev/mtd$mtd"
+	flash_erase /dev/mtd$mtd 0 0 >/dev/null || true
+	mount -t jffs2 mtd:overlay /mnt/overlay
+fi
+mkdir -p /mnt/overlay/upper /mnt/overlay/work
+
+# --- overlay the SquashFS root ------------------------------------------
+mkdir -p /mnt/root
+mount -t overlay overlay \
+	-o "lowerdir=/,upperdir=/mnt/overlay/upper,workdir=/mnt/overlay/work" \
+	/mnt/root
+msg "overlayfs ready at /mnt/root (upper: mtd:overlay)"
+
+# --- make the overlay the root ------------------------------------------
+mkdir -p /mnt/root/oldroot
+pivot_root /mnt/root /mnt/root/oldroot
+cd /
+
+# --- remount pseudo-filesystems in the new root -------------------------
+mount -t proc proc /proc 2>/dev/null || true
+mount -t sysfs sysfs /sys 2>/dev/null || true
+mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+
+msg "switched root; starting busybox init"
+exec /bin/busybox init

@@ -1,0 +1,3 @@
+# Busybox config fragment for YuzukiNeko NOR overlayfs boot
+# pivot_root is used by /sbin/init to switch onto the overlay root.
+CONFIG_PIVOT_ROOT=y
