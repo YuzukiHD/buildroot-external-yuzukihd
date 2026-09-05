@@ -45,10 +45,13 @@ external.desc / Config.in / external.mk   BR2_EXTERNAL plumbing
                           (SyterKit, 48 KiB, loaded by BROM)
   0x010000  device tree   sun252i-f101-yuzukineko.dtb   (reserved 256 KiB)
   0x050000  fw_jump.bin   OpenSBI fw_jump               (reserved 512 KiB)
-  0x0d0000  Image         Linux kernel                  (reserved 6 MiB)
-  0x6d0000  rootfs        rootfs.squashfs               (actual size)
-  0x6d0000+ free          erased (0xFF); kept for a JFFS2 overlayfs upper
+  0x0d0000  Image         Linux kernel                  (6 MiB)
+  0x6d0000  rootfs        rootfs.squashfs (actual size, up to 0xf00000)
+  0xf00000  overlay       last 1 MiB, erased (0xFF) for a JFFS2 overlayfs
+                          upper on the device
   ```
+  This layout is mirrored as MTD fixed partitions in the kernel device tree
+  (`sun252i-f101-yuzukineko.dts`, `flash@0/partitions`).
 - Board dir: `board/yuzukihd/yuzukineko/` (see `readme.txt`)
 
 ## Adding a custom package
