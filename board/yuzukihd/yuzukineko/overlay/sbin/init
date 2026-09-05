@@ -14,6 +14,14 @@ set -e
 
 msg() { echo "init: $*"; }
 
+# On any failure fall back to the plain (read-only) root so the board is
+# still debuggable instead of panicking.
+fallback() {
+	echo "init: overlay setup failed; busybox init on read-only root"
+	exec /bin/busybox init
+}
+trap fallback ERR
+
 # --- basic pseudo-filesystems -------------------------------------------
 mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
