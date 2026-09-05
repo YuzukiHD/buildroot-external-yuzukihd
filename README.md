@@ -21,7 +21,10 @@ external.desc / Config.in / external.mk   BR2_EXTERNAL plumbing
 
 ### YuzukiNeko (Allwinner SUN252I-F101, RV32)
 
-- Defconfig: `configs/yuzukihd_yuzukineko_defconfig`
+- Defconfigs:
+  - `configs/yuzukihd_yuzukineko_defconfig` — Buildroot internal musl toolchain
+  - `configs/yuzukihd_yuzukineko_xuantie_defconfig` — prebuilt **Xuantie**
+    musl32 toolchain (downloaded by Buildroot from the URL in the defconfig)
 - Board dir: `board/yuzukihd/yuzukineko/` (see `readme.txt`)
 
 ## Adding a custom package
