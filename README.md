@@ -27,9 +27,25 @@ external.desc / Config.in / external.mk   BR2_EXTERNAL plumbing
   - `configs/yuzukihd_yuzukineko_xuantie_ramdisk_defconfig` — prebuilt
     **Xuantie** musl32 toolchain (downloaded by Buildroot from the URL in
     the defconfig); builds the dev initramfs
-  - NOR-firmware defconfigs (`yuzukihd_yuzukineko_*_nor_defconfig`) are
-    added alongside once the flash layout (offsets / fixed bootloader bin)
-    is defined
+  - `configs/yuzukihd_yuzukineko_nor_defconfig` — internal musl toolchain;
+    builds the **NOR firmware** image
+  - `configs/yuzukihd_yuzukineko_xuantie_nor_defconfig` — Xuantie toolchain;
+    builds the **NOR firmware** image
+- The NOR defconfigs build OpenSBI `fw_jump.bin` (`YuzukiHD/opensbi`,
+  `sun252i-f101` branch, generic platform + `sun252i-f101` defconfig) and
+  the Linux `Image`/dtb (`YuzukiHD/linux-mainline`, `sun252i_f101_7.2`,
+  defconfig `sun252i_f101_yuzukineko`), then
+  `board/yuzukihd/yuzukineko/post-image-nor.sh` assembles
+  `images/yuzukineko-nor.img` (16 MiB):
+
+  ```
+  0x000000  bootloader    board/yuzukihd/yuzukineko/spinor-boot_spi.bin
+                          (SyterKit, 48 KiB, loaded by BROM)
+  0x010000  device tree   sun252i-f101-yuzukineko.dtb   (reserved 256 KiB)
+  0x050000  fw_jump.bin   OpenSBI fw_jump               (reserved 512 KiB)
+  0x0d0000  Image         Linux kernel                  (reserved 6 MiB)
+  0x6d0000  rootfs        rootfs.squashfs               (to end of flash)
+  ```
 - Board dir: `board/yuzukihd/yuzukineko/` (see `readme.txt`)
 
 ## Adding a custom package
