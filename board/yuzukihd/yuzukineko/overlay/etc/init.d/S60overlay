@@ -1,5 +1,0 @@
-#!/bin/sh
-# SPDX-License-Identifier: GPL-2.0+
-# Bring up the JFFS2-backed overlayfs at boot (see /sbin/mount-overlayfs.sh).
-[ -x /sbin/mount-overlayfs.sh ] || exit 0
-/sbin/mount-overlayfs.sh
