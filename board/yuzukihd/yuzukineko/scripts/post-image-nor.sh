@@ -21,10 +21,10 @@ if [ "$#" -lt 1 ]; then
 fi
 
 BINARIES_DIR="$1"
-BOARD_DIR="$(dirname "$0")"
+BOARD_DIR="$(dirname "$0")/.."
 
 IMG="$BINARIES_DIR/yuzukineko-nor.img"
-BOOT="$BOARD_DIR/spinor-boot_spi.bin"
+BOOT="$BOARD_DIR/bin/spinor-boot_spi.bin"
 DTB="$BINARIES_DIR/sun252i-f101-yuzukineko.dtb"
 FW="$BINARIES_DIR/fw_jump.bin"
 IMAGE="$BINARIES_DIR/Image"

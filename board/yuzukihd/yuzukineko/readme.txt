@@ -25,8 +25,11 @@ sun252i_f101_7.2) and a SquashFS (xz) rootfs, then assemble the flashable
                                                    toolchain
   yuzukihd_yuzukineko_xuantie_nor_defconfig     - Xuantie musl32 toolchain
 
-NOR layout produced by board/yuzukihd/yuzukineko/post-image-nor.sh:
-  0x000000 bootloader  spinor-boot_spi.bin  (SyterKit, 48 KiB)
+Board support files live in bin/ (fixed binaries, e.g. spinor-boot_spi.bin),
+scripts/ (post-image-nor.sh) and overlay/ (content merged into the rootfs).
+
+NOR layout produced by board/yuzukihd/yuzukineko/scripts/post-image-nor.sh:
+  0x000000 bootloader  bin/spinor-boot_spi.bin  (SyterKit, 48 KiB)
   0x010000 device tree sun252i-f101-yuzukineko.dtb  (256 KiB)
   0x050000 fw_jump.bin OpenSBI fw_jump      (512 KiB)
   0x0d0000 Image       Linux kernel         (6 MiB)

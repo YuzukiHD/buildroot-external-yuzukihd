@@ -35,11 +35,13 @@ external.desc / Config.in / external.mk   BR2_EXTERNAL plumbing
   `sun252i-f101` branch, generic platform + `sun252i-f101` defconfig) and
   the Linux `Image`/dtb (`YuzukiHD/linux-mainline`, `sun252i_f101_7.2`,
   defconfig `sun252i_f101_yuzukineko`), then
-  `board/yuzukihd/yuzukineko/post-image-nor.sh` assembles
-  `images/yuzukineko-nor.img` (16 MiB):
+  `board/yuzukihd/yuzukineko/scripts/post-image-nor.sh` assembles
+  `images/yuzukineko-nor.img` (16 MiB). Board support files live under
+  `board/yuzukihd/yuzukineko/{bin,scripts,overlay}` (binaries / packaging
+  scripts / rootfs-overlay content merged into the rootfs).
 
   ```
-  0x000000  bootloader    board/yuzukihd/yuzukineko/spinor-boot_spi.bin
+  0x000000  bootloader    board/yuzukihd/yuzukineko/bin/spinor-boot_spi.bin
                           (SyterKit, 48 KiB, loaded by BROM)
   0x010000  device tree   sun252i-f101-yuzukineko.dtb   (reserved 256 KiB)
   0x050000  fw_jump.bin   OpenSBI fw_jump               (reserved 512 KiB)
