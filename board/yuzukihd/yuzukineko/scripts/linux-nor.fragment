@@ -1,0 +1,11 @@
+# Linux config fragment for NOR boot (merged into the YuzukiNeko defconfig)
+#
+# MTD partitioning from the DT fixed-partitions table (flash@0/partitions),
+# squashfs read-only root, and a JFFS2-backed overlayfs upper.
+CONFIG_MTD=y
+CONFIG_MTD_BLOCK=y
+CONFIG_MTD_OF_PARTS=y
+CONFIG_MTD_SPI_NOR=y
+CONFIG_SQUASHFS=y
+CONFIG_JFFS2_FS=y
+CONFIG_OVERLAY_FS=y
