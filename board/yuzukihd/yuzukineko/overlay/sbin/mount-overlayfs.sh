@@ -43,6 +43,6 @@ mkdir -p "$upper" "$work"
 # Lower is the running read-only squashfs root. Overlay gives every file a
 # writable copy-on-write copy in the JFFS2 upper dir.
 mount -t overlay overlay \
-	-o "lowerdir=/,upperdir=$upper,workdir=$work" "$merged"
+-o "lowerdir=/,upperdir=$upper,workdir=$work" "$merged"
 
 echo "mount-overlayfs: overlay ready at $merged (upper on $mtdsrc)"
