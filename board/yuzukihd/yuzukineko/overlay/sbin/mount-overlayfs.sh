@@ -20,7 +20,9 @@ if [ -z "$mtd" ]; then
 	exit 1
 fi
 
-mtddev="/dev/mtd$mtd"
+# flash_erase needs the char device; JFFS2 is mounted by the partition name.
+mtdchr="/dev/mtd$mtd"
+mtdsrc="mtd:$PART"
 mountpoint="/mnt/overlay"
 upper="$mountpoint/upper"
 work="$mountpoint/work"
@@ -30,10 +32,10 @@ mkdir -p "$mountpoint" "$merged"
 
 # First boot (or a partition that never got initialized): the flash reads
 # erased (0xFF). Try to mount JFFS2; if that fails, erase and retry.
-if ! mount -t jffs2 "$mtddev" "$mountpoint" 2>/dev/null; then
-	echo "mount-overlayfs: formatting JFFS2 on $mtddev (erased flash)"
-	flash_erase "$mtddev" 0 0 >/dev/null
-	mount -t jffs2 "$mtddev" "$mountpoint"
+if ! mount -t jffs2 "$mtdsrc" "$mountpoint" 2>/dev/null; then
+	echo "mount-overlayfs: formatting JFFS2 on $mtdchr ($PART, erased flash)"
+	flash_erase "$mtdchr" 0 0 >/dev/null
+	mount -t jffs2 "$mtdsrc" "$mountpoint"
 fi
 
 mkdir -p "$upper" "$work"
@@ -43,4 +45,4 @@ mkdir -p "$upper" "$work"
 mount -t overlay overlay \
 	-o "lowerdir=/,upperdir=$upper,workdir=$work" "$merged"
 
-echo "mount-overlayfs: overlay ready at $merged (upper on $mtddev)"
+echo "mount-overlayfs: overlay ready at $merged (upper on $mtdsrc)"
