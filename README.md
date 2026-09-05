@@ -22,9 +22,14 @@ external.desc / Config.in / external.mk   BR2_EXTERNAL plumbing
 ### YuzukiNeko (Allwinner SUN252I-F101, RV32)
 
 - Defconfigs:
-  - `configs/yuzukihd_yuzukineko_defconfig` — Buildroot internal musl toolchain
-  - `configs/yuzukihd_yuzukineko_xuantie_defconfig` — prebuilt **Xuantie**
-    musl32 toolchain (downloaded by Buildroot from the URL in the defconfig)
+  - `configs/yuzukihd_yuzukineko_ramdisk_defconfig` — Buildroot internal musl
+    toolchain; builds the dev initramfs (`rootfs.cpio`)
+  - `configs/yuzukihd_yuzukineko_xuantie_ramdisk_defconfig` — prebuilt
+    **Xuantie** musl32 toolchain (downloaded by Buildroot from the URL in
+    the defconfig); builds the dev initramfs
+  - NOR-firmware defconfigs (`yuzukihd_yuzukineko_*_nor_defconfig`) are
+    added alongside once the flash layout (offsets / fixed bootloader bin)
+    is defined
 - Board dir: `board/yuzukihd/yuzukineko/` (see `readme.txt`)
 
 ## Adding a custom package
@@ -38,6 +43,6 @@ external.desc / Config.in / external.mk   BR2_EXTERNAL plumbing
 ```sh
 make -C <path-to-upstream-buildroot> O=<build-dir> \
     BR2_EXTERNAL=/path/to/buildroot-external-yuzukihd \
-    yuzukihd_yuzukineko_defconfig
+    yuzukihd_yuzukineko_xuantie_ramdisk_defconfig
 make -C <path-to-upstream-buildroot> O=<build-dir>
 ```

@@ -2,18 +2,22 @@ YuzukiHD YuzukiNeko (Allwinner SUN252I-F101)
 ================================================
 
 This board is provided by the YuzukiHD Buildroot external tree
-(buildroot-external-yuzukihd). Two defconfigs are available:
+(buildroot-external-yuzukihd). Two dev/ramdisk defconfigs are available (they build the initramfs used
+for bring-up/debug):
 
-  yuzukihd_yuzukineko_defconfig          - Buildroot internal musl toolchain
-  yuzukihd_yuzukineko_xuantie_defconfig  - prebuilt Xuantie musl32 toolchain,
-                                           downloaded by Buildroot (see the
-                                           BR2_TOOLCHAIN_EXTERNAL_URL in it)
+  yuzukihd_yuzukineko_ramdisk_defconfig          - Buildroot internal musl
+                                                   toolchain
+  yuzukihd_yuzukineko_xuantie_ramdisk_defconfig  - prebuilt Xuantie musl32
+                                                   toolchain, downloaded by
+                                                   Buildroot (see the
+                                                   BR2_TOOLCHAIN_EXTERNAL_URL
+                                                   in it)
 
 Build one of them from the upstream buildroot tree, pointing BR2_EXTERNAL
 at this directory:
 
     make BR2_EXTERNAL=/path/to/buildroot-external-yuzukihd \
-        yuzukihd_yuzukineko_xuantie_defconfig
+        yuzukihd_yuzukineko_xuantie_ramdisk_defconfig
     make
 
 The resulting uncompressed initramfs is:
