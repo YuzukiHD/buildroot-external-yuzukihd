@@ -1,0 +1,9 @@
+#
+# YUZUKIHD (buildroot-external-yuzukihd) external-tree options
+#
+
+# To expose the Kconfig symbols of a custom package <foo>, drop
+# package/<foo>/Config.in in this tree and uncomment the source line
+# below (one per package):
+#
+# source "$BR2_EXTERNAL_YUZUKIHD_PATH/package/<foo>/Config.in"
