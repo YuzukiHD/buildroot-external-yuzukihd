@@ -8,7 +8,9 @@
 #	0x010000  device tree sun252i-f101-yuzukineko.dtb (reserved 256 KiB)
 #	0x050000  fw_jump     fw_jump.bin (OpenSBI, reserved 512 KiB)
 #	0x0d0000  Image       arch/riscv/boot/Image (kernel, reserved 6 MiB)
-#	0x6d0000  rootfs      rootfs.squashfs  (to end of flash)
+#	0x6d0000  rootfs      rootfs.squashfs (written at its real size)
+#	0x6d0000+  free       erased (0xFF) space, kept for a JFFS2-backed
+#	                      overlayfs upper on the device
 #
 # Called by Buildroot as a post-image script: $1 = images directory.
 set -e
@@ -35,8 +37,9 @@ for f in "$BOOT" "$DTB" "$FW" "$IMAGE" "$ROOTFS"; do
 	fi
 done
 
-# 16 MiB, zero-filled first so gaps between regions stay clean padding.
-dd if=/dev/zero of="$IMG" bs=1M count=16 status=none
+# 16 MiB image, pre-filled with 0xFF (blank NOR) so every gap and the space
+# after the SquashFS rootfs is erased and usable (e.g. as a JFFS2 overlay).
+dd if=/dev/zero bs=1M count=16 status=none | tr '\000' '\377' >"$IMG"
 
 # write_at <offset-hex> <file>: offset must be a multiple of 1 KiB.
 write_at() {
@@ -51,5 +54,10 @@ write_at 0x050000 "$FW"
 write_at 0x0d0000 "$IMAGE"
 write_at 0x6d0000 "$ROOTFS"
 
+# Report the free space left for the JFFS2 overlay.
+rootfs_size=$(wc -c <"$ROOTFS")
+free_off=$((0x6d0000 + rootfs_size))
+echo "rootfs: $(wc -c <"$ROOTFS") bytes @ 0x6d0000"
+echo "JFFS2 overlay space: 0x$(printf '%x' "$free_off")..0x1000000"
 echo "post-image-nor.sh: wrote $IMG"
 ls -l "$IMG"

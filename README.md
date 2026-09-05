@@ -44,7 +44,8 @@ external.desc / Config.in / external.mk   BR2_EXTERNAL plumbing
   0x010000  device tree   sun252i-f101-yuzukineko.dtb   (reserved 256 KiB)
   0x050000  fw_jump.bin   OpenSBI fw_jump               (reserved 512 KiB)
   0x0d0000  Image         Linux kernel                  (reserved 6 MiB)
-  0x6d0000  rootfs        rootfs.squashfs               (to end of flash)
+  0x6d0000  rootfs        rootfs.squashfs               (actual size)
+  0x6d0000+ free          erased (0xFF); kept for a JFFS2 overlayfs upper
   ```
 - Board dir: `board/yuzukihd/yuzukineko/` (see `readme.txt`)
 

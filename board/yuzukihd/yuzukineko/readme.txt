@@ -30,7 +30,9 @@ NOR layout produced by board/yuzukihd/yuzukineko/post-image-nor.sh:
   0x010000 device tree sun252i-f101-yuzukineko.dtb  (256 KiB)
   0x050000 fw_jump.bin OpenSBI fw_jump      (512 KiB)
   0x0d0000 Image       Linux kernel         (6 MiB)
-  0x6d0000 rootfs      rootfs.squashfs      (to end)
+  0x6d0000 rootfs      rootfs.squashfs      (actual size; the space after it
+                                             is left erased for a JFFS2-backed
+                                             overlayfs upper on the device)
 
 Build (e.g. the Xuantie ramdisk dev image) from the upstream buildroot tree,
 pointing BR2_EXTERNAL at this directory:
