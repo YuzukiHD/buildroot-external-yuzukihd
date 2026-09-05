@@ -62,14 +62,28 @@ write_at 0x050000 "$FW"
 write_at 0x0d0000 "$IMAGE"
 write_at 0x6d0000 "$ROOTFS"
 
-# Check the rootfs did not overflow into the overlay partition.
+# ---- report ----
+
+kib() { # bytes -> KiB (rounded up)
+	echo "$(((($1) + 1023) / 1024))"
+}
+
 rootfs_size=$(wc -c <"$ROOTFS")
 if [ $((0x6d0000 + rootfs_size)) -gt "$ROOTFS_END" ]; then
-	echo "post-image-nor.sh: rootfs ($rootfs_size B) does not fit before overlay @ 0x$(printf '%x' "$OVERLAY_OFF")" >&2
+	echo "post-image-nor.sh: rootfs ($rootfs_size B) overflows into overlay @ 0x$(printf '%x' "$OVERLAY_OFF")" >&2
 	exit 1
 fi
 
-echo "rootfs: $rootfs_size bytes @ 0x6d0000 (region up to 0xf00000)"
-echo "overlay (JFFS2) partition: 0x$(printf '%x' "$OVERLAY_OFF")..0x1000000 ($((OVERLAY_SIZE / 1024)) KiB, erased)"
-echo "post-image-nor.sh: wrote $IMG"
-ls -l "$IMG"
+row() {
+	printf '  %-10s  %-9s  %9s  %-7s  %s\n' "$1" "$2" "$3" "$4" "$5"
+}
+
+echo "== $IMG : 16 MiB SPI NOR image =="
+row REGION OFFSET SIZE LIMIT CONTENT
+row bootloader 0x000000 "$(kib "$(wc -c <"$BOOT")") KiB" "<64K" "bin/spinor-boot_spi.bin"
+row dtb        0x010000 "$(kib "$(wc -c <"$DTB")") KiB" "<256K" "$(basename "$DTB")"
+row fw_jump    0x050000 "$(kib "$(wc -c <"$FW")") KiB" "<512K" "$(basename "$FW")"
+row Image      0x0d0000 "$(kib "$(wc -c <"$IMAGE")") KiB" "<6M" "$(basename "$IMAGE")"
+row rootfs     0x6d0000 "$(kib "$rootfs_size") KiB" "<8.2M" "$(basename "$ROOTFS")"
+row overlay    0xf00000 "$((OVERLAY_SIZE / 1024)) KiB" "=1M" "erased; JFFS2 overlayfs upper"
+echo "== done: $IMG ($(kib "$(wc -c <"$IMG")") KiB on disk) =="
