@@ -19,7 +19,7 @@ external.desc / Config.in / external.mk   BR2_EXTERNAL plumbing
 
 ## Boards
 
-### YuzukiNeko (Allwinner SUN252I-F101, RV32)
+### YuzukiNeko (Allwinner SUN252I-F101)
 
 - Defconfigs:
   - `configs/yuzukihd_yuzukineko_ramdisk_defconfig` — Buildroot internal musl
@@ -31,6 +31,10 @@ external.desc / Config.in / external.mk   BR2_EXTERNAL plumbing
     builds the **NOR firmware** image
   - `configs/yuzukihd_yuzukineko_xuantie_nor_defconfig` — Xuantie toolchain;
     builds the **NOR firmware** image
+  - `configs/yuzukihd_yuzukineko_rv64i_ramdisk_defconfig` — internal musl
+    toolchain; builds an RV64I dev initramfs (`rootfs.cpio`)
+  - `configs/yuzukihd_yuzukineko_rv64i_nor_defconfig` — internal musl
+    toolchain; builds the RV64I **NOR firmware** image
 - The NOR defconfigs build OpenSBI `fw_jump.bin` (`YuzukiHD/opensbi`,
   `sun252i-f101` branch, generic platform + `sun252i-f101` defconfig) and
   the Linux `Image`/dtb (`YuzukiHD/linux-mainline`, `sun252i_f101_7.2`,
