@@ -27,6 +27,8 @@ sun252i_f101_7.2) and a SquashFS (xz) rootfs, then assemble the flashable
 
 Board support files live in bin/ (fixed binaries, e.g. spinor-boot_spi.bin),
 scripts/ (post-image-nor.sh) and overlay/ (content merged into the rootfs).
+The post-image script accepts an optional bootloader filename after the images
+directory; the RV64I NOR defconfig selects spinor-boot-rv64i_spi.bin.
 
 NOR layout produced by board/yuzukihd/yuzukineko/scripts/post-image-nor.sh:
   0x000000 bootloader  bin/spinor-boot_spi.bin  (SyterKit, 48 KiB)

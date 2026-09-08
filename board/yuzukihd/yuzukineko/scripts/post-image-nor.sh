@@ -14,19 +14,28 @@
 #	0xf00000  overlay     last 1 MiB, erased (0xFF), for a JFFS2 overlayfs
 #	                      upper on the device
 #
-# Called by Buildroot as a post-image script: $1 = images directory.
+# Called by Buildroot as a post-image script: $1 = images directory and $2 is
+# an optional bootloader filename from the board bin/ directory.
 set -e
 
-if [ "$#" -lt 1 ]; then
-	echo "usage: post-image-nor.sh <images-dir>" >&2
+if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+	echo "usage: post-image-nor.sh <images-dir> [bootloader]" >&2
 	exit 1
 fi
 
 BINARIES_DIR="$1"
 BOARD_DIR="$(dirname "$0")/.."
+BOOT_NAME="${2:-spinor-boot_spi.bin}"
+
+case "$BOOT_NAME" in
+	*/*|"")
+		echo "post-image-nor.sh: bootloader must be a filename from bin/" >&2
+		exit 1
+		;;
+esac
 
 IMG="$BINARIES_DIR/yuzukineko-nor.img"
-BOOT="$BOARD_DIR/bin/spinor-boot_spi.bin"
+BOOT="$BOARD_DIR/bin/$BOOT_NAME"
 DTB="$BINARIES_DIR/sun252i-f101-yuzukineko.dtb"
 FW="$BINARIES_DIR/fw_jump.bin"
 IMAGE="$BINARIES_DIR/Image"
@@ -80,7 +89,7 @@ row() {
 
 echo "== $IMG : 16 MiB SPI NOR image =="
 row REGION OFFSET SIZE LIMIT CONTENT
-row bootloader 0x000000 "$(kib "$(wc -c <"$BOOT")") KiB" "<64K" "bin/spinor-boot_spi.bin"
+row bootloader 0x000000 "$(kib "$(wc -c <"$BOOT")") KiB" "<64K" "bin/$(basename "$BOOT")"
 row dtb        0x010000 "$(kib "$(wc -c <"$DTB")") KiB" "<256K" "$(basename "$DTB")"
 row fw_jump    0x050000 "$(kib "$(wc -c <"$FW")") KiB" "<512K" "$(basename "$FW")"
 row Image      0x0d0000 "$(kib "$(wc -c <"$IMAGE")") KiB" "<6M" "$(basename "$IMAGE")"
