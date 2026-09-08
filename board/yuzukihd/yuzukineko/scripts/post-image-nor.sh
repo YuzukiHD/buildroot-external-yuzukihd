@@ -3,10 +3,10 @@
 #
 # Assemble the 16 MiB SPI NOR firmware image for YuzukiNeko.
 #
-# Region layout (fixed, mirrors the kernel MTD partition table in
-# sun252i-f101-yuzukineko.dts and the SyterKit spinor-boot reader):
+# Region layout (fixed, mirrors the architecture-specific kernel MTD partition
+# table and the SyterKit spinor-boot reader):
 #	0x000000  bootloader  spinor-boot_spi.bin   (<= 64 KiB, loaded by BROM)
-#	0x010000  device tree sun252i-f101-yuzukineko.dtb (256 KiB)
+#	0x010000  device tree architecture-specific DTB (256 KiB)
 #	0x050000  fw_jump     fw_jump.bin (OpenSBI, 512 KiB)
 #	0x0d0000  Image       arch/riscv/boot/Image (kernel, 6 MiB)
 #	0x6d0000  rootfs      rootfs.squashfs (written at its real size;
@@ -14,29 +14,40 @@
 #	0xf00000  overlay     last 1 MiB, erased (0xFF), for a JFFS2 overlayfs
 #	                      upper on the device
 #
-# Called by Buildroot as a post-image script: $1 = images directory and $2 is
-# an optional bootloader filename from the board bin/ directory.
+# Called by Buildroot as a post-image script. The architecture selects the
+# matching BROM bootloader and device tree:
+#   rv32   spinor-boot_spi.bin        sun252i-f101-yuzukineko.dtb
+#   rv64i  spinor-boot-rv64i_spi.bin  sun252i-f101-yuzukineko-rv64i.dtb
 set -e
 
-if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
-	echo "usage: post-image-nor.sh <images-dir> [bootloader]" >&2
+if [ "$#" -ne 3 ] || [ "$2" != "--arch" ]; then
+	echo "usage: post-image-nor.sh <images-dir> --arch <rv32|rv64i>" >&2
 	exit 1
 fi
 
 BINARIES_DIR="$1"
 BOARD_DIR="$(dirname "$0")/.."
-BOOT_NAME="${2:-spinor-boot_spi.bin}"
 
-case "$BOOT_NAME" in
-	*/*|"")
-		echo "post-image-nor.sh: bootloader must be a filename from bin/" >&2
+case "$3" in
+	rv32)
+		BOOT_NAME="spinor-boot_spi.bin"
+		DTB_NAME="sun252i-f101-yuzukineko.dtb"
+		ARCH_DESC="RV32 (C907 / ilp32)"
+		;;
+	rv64i)
+		BOOT_NAME="spinor-boot-rv64i_spi.bin"
+		DTB_NAME="sun252i-f101-yuzukineko-rv64i.dtb"
+		ARCH_DESC="RV64I (lp64)"
+		;;
+	*)
+		echo "post-image-nor.sh: unsupported architecture '$3' (expected rv32 or rv64i)" >&2
 		exit 1
 		;;
 esac
 
 IMG="$BINARIES_DIR/yuzukineko-nor.img"
 BOOT="$BOARD_DIR/bin/$BOOT_NAME"
-DTB="$BINARIES_DIR/sun252i-f101-yuzukineko.dtb"
+DTB="$BINARIES_DIR/$DTB_NAME"
 FW="$BINARIES_DIR/fw_jump.bin"
 IMAGE="$BINARIES_DIR/Image"
 ROOTFS="$BINARIES_DIR/rootfs.squashfs"
@@ -87,7 +98,7 @@ row() {
 	printf '  %-10s  %-9s  %9s  %-7s  %s\n' "$1" "$2" "$3" "$4" "$5"
 }
 
-echo "== $IMG : 16 MiB SPI NOR image =="
+echo "== $IMG : 16 MiB SPI NOR image ($ARCH_DESC) =="
 row REGION OFFSET SIZE LIMIT CONTENT
 row bootloader 0x000000 "$(kib "$(wc -c <"$BOOT")") KiB" "<64K" "bin/$(basename "$BOOT")"
 row dtb        0x010000 "$(kib "$(wc -c <"$DTB")") KiB" "<256K" "$(basename "$DTB")"

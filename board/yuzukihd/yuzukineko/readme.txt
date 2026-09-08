@@ -16,19 +16,32 @@ Two dev/ramdisk defconfigs build the initramfs used for bring-up/debug:
 
 The resulting uncompressed initramfs is output/images/rootfs.cpio.
 
-Two NOR-firmware defconfigs additionally build OpenSBI fw_jump
+Three NOR-firmware defconfigs additionally build OpenSBI fw_jump
 (YuzukiHD/opensbi sun252i-f101), the Linux Image/dtb (YuzukiHD/linux-mainline
 sun252i_f101_7.2) and a SquashFS (xz) rootfs, then assemble the flashable
 16 MiB output/images/yuzukineko-nor.img:
 
-  yuzukihd_yuzukineko_nor_defconfig             - Buildroot internal musl
-                                                   toolchain
-  yuzukihd_yuzukineko_xuantie_nor_defconfig     - Xuantie musl32 toolchain
+  defconfig                                      --arch  bootloader
+  yuzukihd_yuzukineko_nor_defconfig              rv32    spinor-boot_spi.bin
+  yuzukihd_yuzukineko_xuantie_nor_defconfig      rv32    spinor-boot_spi.bin
+  yuzukihd_yuzukineko_rv64i_nor_defconfig        rv64i   spinor-boot-rv64i_spi.bin
+
+  defconfig                                      Linux defconfig                         DTB
+  yuzukihd_yuzukineko_nor_defconfig              sun252i_f101_yuzukineko                sun252i-f101-yuzukineko.dtb
+  yuzukihd_yuzukineko_xuantie_nor_defconfig      sun252i_f101_yuzukineko                sun252i-f101-yuzukineko.dtb
+  yuzukihd_yuzukineko_rv64i_nor_defconfig        sun252i_f101_rv64_yuzukineko           sun252i-f101-yuzukineko-rv64i.dtb
 
 Board support files live in bin/ (fixed binaries, e.g. spinor-boot_spi.bin),
 scripts/ (post-image-nor.sh) and overlay/ (content merged into the rootfs).
-The post-image script accepts an optional bootloader filename after the images
-directory; the RV64I NOR defconfig selects spinor-boot-rv64i_spi.bin.
+The post-image script requires an architecture after the images directory:
+
+  --arch rv32   selects bin/spinor-boot_spi.bin and
+                sun252i-f101-yuzukineko.dtb
+  --arch rv64i  selects bin/spinor-boot-rv64i_spi.bin and
+                sun252i-f101-yuzukineko-rv64i.dtb
+
+Each NOR defconfig supplies the matching argument through
+BR2_ROOTFS_POST_IMAGE_SCRIPT_ARGS.
 
 NOR layout produced by board/yuzukihd/yuzukineko/scripts/post-image-nor.sh:
   0x000000 bootloader  bin/spinor-boot_spi.bin  (SyterKit, 48 KiB)
